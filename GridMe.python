@@ -1,0 +1,59 @@
+#!/usr/bin/env python
+
+from gimpfu import *
+
+def python_GridMe(image, drawable, numX, numY):
+	width  = drawable.width            # set width to the drawing's width
+	height = drawable.height           # set height to the drawing's height
+	
+	x_dist = width/numX                # set x_dist to the distance between the vertical lines
+	y_dist = width/numY                # set y_dist to the distance between the horizontal lines
+	
+	thickness = (width+height)/100     # set thickness of the lines to a thin amount but scaled to the images dimensions
+	
+	gimp.set_background(255, 255, 255) # set background to white
+	gimp.set_foreground(0  , 0  , 0  ) # set foreground to black
+	
+	grid_layer = gimp.Layer(image, "Grid", width, height, RGB, 100, NORMAL_MODE);
+					   # create a layer for the grid
+	image.add_layer(grid_layer,len(image.layers)+1)
+					   # add the grid layer to the image at the top of the layers
+
+	for x in range(1, numX):
+		line_layer = gimp.Layer(image, "Line", thickness, height, RGB, 100, NORMAL_MODE);
+								 # create a vertical line with the right thickness and height
+		line_layer.fill(BACKGROUND_FILL)		 # fill the area with white
+		image.add_layer(line_layer,len(image.layers)+1)  # add the line to the image
+
+		line_layer.translate(x_dist*(x), 0)              # move the new line to its position
+		gimp.delete(line_layer)				 # delete the line from memory	
+
+	for y in range(0, numY):
+		
+		line_layer = gimp.Layer(image, "Line", width, thickness, RGB, 100, NORMAL_MODE);
+								 # create a horizontal line with the right thickness and height
+		line_layer.fill(BACKGROUND_FILL)		 # fill the area with white
+		image.add_layer(line_layer,len(image.layers)+1)  # add the line to the image
+
+		line_layer.translate(0, y_dist*(y))              # move the new line to its position
+		gimp.delete(line_layer)				 # delete the line from memory
+
+	gimp.delete(image)
+
+register(
+	"Grid Me",
+	"Grid the image to make drawing easier",
+	"There is no help for you",
+	"Joe Buchoff",
+	"Joe Buchoff",
+	"7/25/2016",
+	"<Filters>/Artistic/_GridMe",
+	"RGB*, GRAY*",
+	[
+		(PF_SLIDER 2 10)
+		(PF_SLIDER 2 10)
+	],
+	[],
+	python_GridMe)
+
+main()
